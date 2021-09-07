@@ -1,23 +1,44 @@
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
 import './App.css';
+import Countries from './components/Countries';
+import useFetchData from './hooks/useFetchData';
 
 function App() {
+
+  const [countries, setCountries] = useState([]);
+  const [next, setNext] = useState(0);
+  const {data} = useFetchData('https://restcountries.eu/rest/v2/all');
+  
+  useEffect(()=>{
+
+    if (data) {
+      let resp = data.slice((0 + next), next + 25);
+      setCountries(resp)
+    }
+  
+  },[data, next])
+
+  const list = countries.map((x, i) => <Countries key={i} name={x.name} svg={x.flag} />)
+  
+  
+  const handleNext = () => {
+    setNext(prev => prev + 25);
+  }
+
+
+  const handlePrev = () => {
+    setNext(prev => prev - 25);
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='app'>
+      <h1>Paises del Mundo</h1>
+      <div className="ContainerList">
+     {list}
+    </div>
+   <div className='buttons-container'>
+   {next > 0 && <button onClick={handlePrev}>Prev</button>}
+   {next +25 !== 250 && <button onClick={handleNext}>Next</button>}
+   </div>
     </div>
   );
 }
